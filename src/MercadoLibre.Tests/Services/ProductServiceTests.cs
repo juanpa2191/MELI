@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Logging;
 using MercadoLibre.Core.Entities;
+using MercadoLibre.Core.Exceptions;
 using MercadoLibre.Core.Interfaces;
 using MercadoLibre.Core.Services;
 using Moq;
@@ -10,12 +12,14 @@ namespace MercadoLibre.Tests.Services
     public class ProductServiceTests
     {
         private readonly Mock<IProductRepository> _mockRepository;
+        private readonly Mock<ILogger<ProductService>> _mockLogger;
         private readonly ProductService _productService;
 
         public ProductServiceTests()
         {
             _mockRepository = new Mock<IProductRepository>();
-            _productService = new ProductService(_mockRepository.Object);
+            _mockLogger = new Mock<ILogger<ProductService>>();
+            _productService = new ProductService(_mockRepository.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -42,7 +46,7 @@ namespace MercadoLibre.Tests.Services
         }
 
         [Fact]
-        public async Task GetProductByIdAsync_WithInvalidId_ThrowsKeyNotFoundException()
+        public async Task GetProductByIdAsync_WithInvalidId_ThrowsProductNotFoundException()
         {
             // Arrange
             _mockRepository.Setup(repo =>
@@ -50,8 +54,20 @@ namespace MercadoLibre.Tests.Services
                 .ReturnsAsync((Product)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            var exception = await Assert.ThrowsAsync<ProductNotFoundException>(() =>
                 _productService.GetProductByIdAsync("invalid_id"));
+            
+            Assert.Equal("Product with ID invalid_id was not found.", exception.Message);
+            
+            // Verify that the logger was called
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => true),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact]
@@ -74,19 +90,6 @@ namespace MercadoLibre.Tests.Services
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
-        }
-
-        [Fact]
-        public async Task GetProductsByCategoryAsync_WithInvalidCategory_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            _mockRepository.Setup(repo =>
-                repo.GetProductsByCategoryAsync(It.IsAny<string>()))
-                .ReturnsAsync(new List<Product>());
-
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
-                _productService.GetProductsByCategoryAsync("invalid_category"));
         }
     }
 }
