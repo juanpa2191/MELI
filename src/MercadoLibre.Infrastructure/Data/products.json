@@ -1,0 +1,34 @@
+{
+  "products": [
+    {
+      "id": "MLB1234567",
+      "title": "iPhone 13 Pro Max",
+      "price": 999.99,
+      "description": "Apple iPhone 13 Pro Max 256GB",
+      "category": "Electronics",
+      "images": [
+        "iphone13-1.jpg",
+        "iphone13-2.jpg"
+      ],
+      "stock": 10,
+      "condition": "New",
+      "rating": 4.8,
+      "details": {
+        "brand": "Apple",
+        "model": "iPhone 13 Pro Max",
+        "specifications": {
+          "storage": "256GB",
+          "color": "Graphite",
+          "screen": "6.7-inch Super Retina XDR"
+        },
+        "warrantyInfo": "1 year manufacturer warranty",
+        "sellerInfo": "Official Apple Store",
+        "features": [
+          "5G capable",
+          "A15 Bionic chip",
+          "Pro camera system"
+        ]
+      }
+    }
+  ]
+}
