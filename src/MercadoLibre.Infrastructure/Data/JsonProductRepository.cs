@@ -30,7 +30,13 @@ namespace MercadoLibre.Infrastructure.Data
             }
 
             var jsonString = File.ReadAllText(_jsonFilePath);
-            _products = JsonSerializer.Deserialize<List<Product>>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Product>();
+            var options = new JsonSerializerOptions 
+            { 
+                PropertyNameCaseInsensitive = true
+            };
+            
+            var productsRoot = JsonSerializer.Deserialize<ProductsRoot>(jsonString, options);
+            _products = productsRoot?.Products ?? new List<Product>();
         }
 
         public async Task<Product> GetProductByIdAsync(string id)
